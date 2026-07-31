@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#07120f" />
+  <title>The Hub: Forest Frontier</title>
+  <style>
+    html,body{height:100%;margin:0;background:#07120f;color:#f7f1d0;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+    body{display:grid;place-items:center;background:radial-gradient(circle at 50% 30%,#244a4e,#07120f 70%)}
+    main{text-align:center;padding:28px;max-width:520px}
+    h1{font-family:Georgia,serif;color:#f7df9a;margin:0 0 12px}
+    p{color:#b9d5d7;line-height:1.5}
+    .bar{height:8px;border:1px solid #e6c574;border-radius:999px;overflow:hidden;background:#071018;margin-top:20px}
+    .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#75dcf2,#e6c574);transition:width .2s}
+    small{display:block;margin-top:12px;color:#8cb0b4}
+  </style>
+</head>
+<body>
+<main>
+  <h1>The Hub: Forest Frontier</h1>
+  <p id="status">Preparing the living world…</p>
+  <div class="bar"><i id="progress"></i></div>
+  <small>Optimized for phone and laptop</small>
+</main>
+<script>
+(async () => {
+  const status = document.getElementById('status');
+  const progress = document.getElementById('progress');
+  try {
+    if (!('DecompressionStream' in window)) throw new Error('This browser needs a newer version to open the game.');
+    let encoded = '';
+    for (let i = 0; i < 11; i += 1) {
+      const name = `chunk${String(i).padStart(2, '0')}.txt`;
+      const response = await fetch(name, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Missing game section ${i + 1}.`);
+      encoded += (await response.text()).trim();
+      const percent = Math.round(((i + 1) / 11) * 70);
+      progress.style.width = `${percent}%`;
+      status.textContent = `Loading world ${i + 1} of 11…`;
+    }
+    const binary = atob(encoded);
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
+    status.textContent = 'Opening the Ancient Frontier…';
+    progress.style.width = '84%';
+    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+    const html = await new Response(stream).text();
+    if (!html.includes('<title>The Hub: Forest Frontier</title>')) throw new Error('The game payload did not validate.');
+    progress.style.width = '100%';
+    document.open();
+    document.write(html);
+    document.close();
+  } catch (error) {
+    console.error(error);
+    status.textContent = error.message || 'The game could not be opened.';
+    progress.style.width = '100%';
+    progress.style.background = '#d85c52';
+  }
+})();
+</script>
+</body>
+</html>
