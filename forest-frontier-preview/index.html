@@ -1,78 +1,23 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#07120f" />
-  <title>The Hub: Forest Frontier</title>
-  <style>
-    html,body{height:100%;margin:0;background:#07120f;color:#f7f1d0;font-family:system-ui,-apple-system,Segoe UI,sans-serif}
-    body{display:grid;place-items:center;background:radial-gradient(circle at 50% 30%,#244a4e,#07120f 70%)}
-    main{text-align:center;padding:28px;max-width:520px}
-    h1{font-family:Georgia,serif;color:#f7df9a;margin:0 0 12px}
-    p{color:#b9d5d7;line-height:1.5}
-    .bar{height:8px;border:1px solid #e6c574;border-radius:999px;overflow:hidden;background:#071018;margin-top:20px}
-    .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#75dcf2,#e6c574);transition:width .2s}
-    small{display:block;margin-top:12px;color:#8cb0b4}
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#07141b">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>The Hub: Forest Frontier</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-<main>
-  <h1>The Hub: Forest Frontier</h1>
-  <p id="status">Preparing the living world…</p>
-  <div class="bar"><i id="progress"></i></div>
-  <small>Optimized for phone and laptop</small>
-</main>
-<script>
-(async () => {
-  const status = document.getElementById('status');
-  const progress = document.getElementById('progress');
-  const base = 'https://raw.githubusercontent.com/Blangks/blangk/c7359f7e8a972fd486ea5eff875c6dac21dc4420/forest-frontier-preview/';
-  try {
-    let encoded = '';
-    for (let i = 0; i < 11; i += 1) {
-      const name = `chunk${String(i).padStart(2, '0')}.txt`;
-      const response = await fetch(base + name, { cache: 'no-store' });
-      if (!response.ok) throw new Error(`Missing game section ${i + 1}.`);
-      encoded += (await response.text()).replace(/\s+/g, '');
-      const percent = Math.round(((i + 1) / 11) * 72);
-      progress.style.width = `${percent}%`;
-      status.textContent = `Loading world ${i + 1} of 11…`;
-    }
-
-    status.textContent = 'Opening the Ancient Frontier…';
-    progress.style.width = '86%';
-
-    const binary = atob(encoded);
-    const bytes = new Uint8Array(binary.length);
-    for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
-
-    let html = '';
-    if (window.pako && typeof window.pako.ungzip === 'function') {
-      html = window.pako.ungzip(bytes, { to: 'string' });
-    } else if ('DecompressionStream' in window) {
-      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
-      html = await new Response(stream).text();
-    } else {
-      throw new Error('Your browser could not load the game decoder. Refresh once and try again.');
-    }
-
-    if (!html.includes('<title>The Hub: Forest Frontier</title>')) {
-      throw new Error('The game payload did not validate.');
-    }
-
-    progress.style.width = '100%';
-    document.open();
-    document.write(html);
-    document.close();
-  } catch (error) {
-    console.error(error);
-    status.textContent = error?.message || 'The game could not be opened.';
-    progress.style.width = '100%';
-    progress.style.background = '#d85c52';
-  }
-})();
-</script>
+<div id="game">
+<canvas id="world"></canvas><canvas id="mini"></canvas>
+<div id="hud">
+  <div class="topbar"><div class="brand">THE HUB<small>Forest Frontier</small></div><div class="stat"><span>District</span><strong id="district">Central Plaza</strong></div><div class="stat"><span>World</span><strong id="worldState">Clear • Morning</strong></div><div class="stat"><span>Quest</span><strong id="questShort">Meet the Archivist</strong></div></div>
+  <div id="hearts"></div><div id="objective"><div class="objective-label">Current objective</div><div class="objective-text" id="objectiveText"></div></div>
+  <div id="prompt"></div><div id="toast"></div><div id="dialog"><span id="dialogText"></span><span class="hint">Tap or press E</span></div><div id="help">WASD / arrows move • E interact • Space attack • Shift roll • M map</div>
+</div>
+<div id="mobile"><div id="stick" class="touch"><div id="knob"></div></div><div id="cameraPad" class="touch"></div><div id="actions"><button id="attack" class="touch">⚔</button><button id="roll" class="touch">↯</button><button id="interact" class="touch">A</button><button id="mapBtn" class="touch">M</button></div></div>
+</div>
+<script src="game.js"></script>
 </body>
 </html>
