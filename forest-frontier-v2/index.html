@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1,user-scalable=no" />
+  <meta name="theme-color" content="#07131d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <title>The Hub: Forest Frontier</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="game" aria-label="The Hub: Forest Frontier game">
+    <canvas id="world"></canvas>
+    <div id="hud" aria-live="polite">
+      <header class="topbar glass">
+        <div class="brand-lockup"><span class="brand-mark" aria-hidden="true">✦</span><div><strong>THE HUB</strong><small>FOREST FRONTIER</small></div></div>
+        <div class="world-readout"><span>District</span><strong id="district">Central Plaza</strong></div>
+        <div class="world-readout hide-small"><span>World</span><strong id="worldState">Clear • Morning</strong></div>
+        <div class="world-readout"><span>Quest</span><strong id="questShort">The Archive Signal</strong></div>
+        <button id="pauseBtn" class="icon-btn ui-click" aria-label="Pause">Ⅱ</button>
+      </header>
+      <section class="player-panel glass"><div id="hearts" class="hearts" aria-label="Health"></div><div class="energy-wrap"><span>FOCUS</span><div class="meter"><i id="energyFill"></i></div></div><div class="currency"><span>◇</span><strong id="rupees">0</strong></div></section>
+      <section id="objective" class="objective glass"><div class="objective-copy"><span>CURRENT OBJECTIVE</span><strong id="objectiveText"></strong></div><div class="objective-distance"><i id="objectiveArrow">▲</i><span id="objectiveDistance">0m</span></div></section>
+      <canvas id="mini" width="300" height="190" aria-label="World mini map"></canvas>
+      <div id="prompt" class="prompt glass"></div><div id="toast" class="toast glass"></div>
+      <section id="dialog" class="dialog glass" role="dialog" aria-modal="true"><div id="dialogPortrait" class="dialog-portrait">✦</div><div class="dialog-body"><span id="dialogSpeaker"></span><p id="dialogText"></p></div><span class="dialog-hint">Tap or press E</span></section>
+      <div id="help" class="help glass">WASD / arrows move • E interact • Space attack • Shift roll • Q focus • M map</div>
+    </div>
+    <div id="mobile" aria-hidden="true"><div id="stick" class="touch joystick"><div id="knob"></div></div><div id="cameraPad" class="touch camera-pad"></div><div id="actions"><button id="attack" class="touch action attack ui-click" aria-label="Attack">ATK</button><button id="roll" class="touch action roll ui-click" aria-label="Roll">ROLL</button><button id="interact" class="touch action interact ui-click" aria-label="Interact">A</button><button id="focus" class="touch action focus ui-click" aria-label="Focus">Q</button><button id="mapBtn" class="touch action map ui-click" aria-label="Map">MAP</button></div></div>
+    <section id="titleScreen" class="screen active"><div class="title-sky"></div><div class="title-city" aria-hidden="true"></div><div class="title-card glass"><div class="title-rune">✦</div><p class="title-kicker">A living city. An ancient frontier.</p><h1>THE HUB</h1><h2>FOREST FRONTIER</h2><p class="title-copy">Walk from a breathing fantasy-tech city into the Whispering Woods, cleanse the corruption, and return to a world that remembers what you changed.</p><div class="title-actions"><button id="continueBtn" class="primary ui-click">Continue</button><button id="newBtn" class="secondary ui-click">New Journey</button></div><div class="title-tools"><button id="soundBtn" class="text-btn ui-click">Sound: On</button><button id="qualityBtn" class="text-btn ui-click">Quality: High</button><button id="fullscreenBtn" class="text-btn ui-click">Fullscreen</button></div><small>Phone: joystick + action buttons • Laptop: keyboard controls</small></div></section>
+    <section id="pauseScreen" class="screen"><div class="pause-card glass"><h2>Journey Paused</h2><p id="pauseSummary">Central Plaza • The Archive Signal</p><button id="resumeBtn" class="primary ui-click">Resume</button><button id="openMapBtn" class="secondary ui-click">Open World Map</button><button id="restartCheckpointBtn" class="secondary ui-click">Return to Checkpoint</button><button id="resetBtn" class="danger-btn ui-click">Reset Save</button></div></section>
+    <section id="mapScreen" class="screen map-screen"><div class="map-shell glass"><div class="map-heading"><div><span>WORLD MAP</span><h2>The Hub &amp; Forest Frontier</h2></div><button id="closeMapBtn" class="icon-btn ui-click" aria-label="Close map">×</button></div><canvas id="worldMap" width="1200" height="700"></canvas><div class="map-legend"><span><i class="dot player"></i>You</span><span><i class="dot objective-dot"></i>Objective</span><span><i class="dot danger"></i>Corruption</span><span><i class="dot discovered"></i>Discovered</span></div></div></section>
+    <section id="completeScreen" class="screen"><div class="complete-card glass"><div class="complete-rune">✦</div><span>FRONTIER RESTORED</span><h2>The world remembers.</h2><p>The Great Tree has awakened. New travelers have entered The Hub, the gardens now grow forest relics, and the Archive records your name among the city’s first frontier wardens.</p><button id="continueWorldBtn" class="primary ui-click">Continue Exploring</button></div></section>
+  </div>
+  <script src="game.js"></script>
+</body>
+</html>
