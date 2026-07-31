@@ -1,0 +1,10 @@
+{
+  "name":"The Hub: Forest Frontier",
+  "short_name":"Forest Frontier",
+  "start_url":"./",
+  "display":"standalone",
+  "background_color":"#061018",
+  "theme_color":"#07131d",
+  "description":"A living fantasy-tech city connected to an ancient playable frontier.",
+  "icons":[]
+}
