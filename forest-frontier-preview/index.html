@@ -15,6 +15,7 @@
     .bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#75dcf2,#e6c574);transition:width .2s}
     small{display:block;margin-top:12px;color:#8cb0b4}
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/pako@2.1.0/dist/pako.min.js"></script>
 </head>
 <body>
 <main>
@@ -27,33 +28,47 @@
 (async () => {
   const status = document.getElementById('status');
   const progress = document.getElementById('progress');
+  const base = 'https://raw.githubusercontent.com/Blangks/blangk/c7359f7e8a972fd486ea5eff875c6dac21dc4420/forest-frontier-preview/';
   try {
-    if (!('DecompressionStream' in window)) throw new Error('This browser needs a newer version to open the game.');
     let encoded = '';
     for (let i = 0; i < 11; i += 1) {
       const name = `chunk${String(i).padStart(2, '0')}.txt`;
-      const response = await fetch(name, { cache: 'no-store' });
+      const response = await fetch(base + name, { cache: 'no-store' });
       if (!response.ok) throw new Error(`Missing game section ${i + 1}.`);
-      encoded += (await response.text()).trim();
-      const percent = Math.round(((i + 1) / 11) * 70);
+      encoded += (await response.text()).replace(/\s+/g, '');
+      const percent = Math.round(((i + 1) / 11) * 72);
       progress.style.width = `${percent}%`;
       status.textContent = `Loading world ${i + 1} of 11…`;
     }
+
+    status.textContent = 'Opening the Ancient Frontier…';
+    progress.style.width = '86%';
+
     const binary = atob(encoded);
     const bytes = new Uint8Array(binary.length);
     for (let i = 0; i < binary.length; i += 1) bytes[i] = binary.charCodeAt(i);
-    status.textContent = 'Opening the Ancient Frontier…';
-    progress.style.width = '84%';
-    const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
-    const html = await new Response(stream).text();
-    if (!html.includes('<title>The Hub: Forest Frontier</title>')) throw new Error('The game payload did not validate.');
+
+    let html = '';
+    if (window.pako && typeof window.pako.ungzip === 'function') {
+      html = window.pako.ungzip(bytes, { to: 'string' });
+    } else if ('DecompressionStream' in window) {
+      const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'));
+      html = await new Response(stream).text();
+    } else {
+      throw new Error('Your browser could not load the game decoder. Refresh once and try again.');
+    }
+
+    if (!html.includes('<title>The Hub: Forest Frontier</title>')) {
+      throw new Error('The game payload did not validate.');
+    }
+
     progress.style.width = '100%';
     document.open();
     document.write(html);
     document.close();
   } catch (error) {
     console.error(error);
-    status.textContent = error.message || 'The game could not be opened.';
+    status.textContent = error?.message || 'The game could not be opened.';
     progress.style.width = '100%';
     progress.style.background = '#d85c52';
   }
