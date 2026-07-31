@@ -1,0 +1,49 @@
+name: Build Forest Preview
+
+on:
+  push:
+    branches:
+      - forest-frontier-preview
+    paths:
+      - forest-frontier-preview/chunk*.txt
+      - .github/workflows/build-forest-preview.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-direct-page:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out preview branch
+        uses: actions/checkout@v4
+        with:
+          ref: forest-frontier-preview
+          fetch-depth: 0
+
+      - name: Rebuild direct HTML
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd forest-frontier-preview
+          cat chunk00.txt chunk01.txt chunk02.txt chunk03.txt chunk04.txt chunk05.txt chunk06.txt chunk07.txt chunk08.txt chunk09.txt chunk10.txt \
+            | tr -d '\n\r\t ' \
+            | base64 --decode \
+            | gzip --decompress > index.next.html
+          grep -q '<title>The Hub: Forest Frontier</title>' index.next.html
+          mv index.next.html index.html
+
+      - name: Commit direct build
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- forest-frontier-preview/index.html; then
+            echo 'Direct page is already current.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add forest-frontier-preview/index.html
+          git commit -m 'Build direct Forest Frontier preview [skip ci]'
+          git push origin HEAD:forest-frontier-preview
